@@ -143,13 +143,12 @@ Optimise all experiments:
 
 Pull image
 
-or 
+or build image from Dockerfile
 
-build image yourself
 
 ```bash
-./docker/build_docker_cpu.sh
-./docker/build_docker_gpu.sh
+docker build -t rlreach-cpu:latest . -f docker/Dockerfile_cpu
+docker build -t rlreach-gpu:latest . -f docker/Dockerfile_gpu
 ```
 
 Run commands inside the docker container
@@ -159,6 +158,7 @@ Run commands inside the docker container
 ./docker/run_docker_gpu.sh python run_experiments.py --exp-id 99 --algo ppo --env widowx_reacher-v1 --n-timesteps 30000 --n-seeds 2
 ```
 
+Note, the GPU image requires [nvidia-docker](https://github.com/NVIDIA/nvidia-docker).
 
 
 ## Tested on
