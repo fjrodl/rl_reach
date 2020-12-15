@@ -21,19 +21,27 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--env', help='env name', type=str)
     parser.add_argument('-a', '--algo', help='RL Algorithm', type=str)
     parser.add_argument('-ns', '--nb-seeds', help='number of seeds', type=int)
-    parser.add_argument('-n', '--n-eval-steps', help="Number of evaluation timesteps", type=int)
-    parser.add_argument('-d', '--deterministic-flag', help='0: Stochastic evaluation, 1: deterministic evaluation', type=int)
+    parser.add_argument(
+        '-n',
+        '--n-eval-steps',
+        help="Number of evaluation timesteps",
+        type=int)
+    parser.add_argument(
+        '-d',
+        '--deterministic-flag',
+        help='0: Stochastic evaluation, 1: deterministic evaluation',
+        type=int)
     parser.add_argument('--exp-id', help='Experiment ID', type=int)
     args = parser.parse_args()
 
-    log_dir = args.log_folder+"/"+args.algo+"/"
+    log_dir = args.log_folder + "/" + args.algo + "/"
     # print(log_dir)
 
     ###############
     # 1. SAVE ENVS VARIABLES, TRAINING HYPERPARAMETERS AND EVALUATION METRICS TO BENCHMARK FILE
     ###############
 
-    ###### 1.1. Create dict of useful environment variables
+    # 1.1. Create dict of useful environment variables
 
     try:
         df_envs = pd.read_csv("gym_envs/widowx_env/envs_list.csv")
@@ -41,7 +49,7 @@ if __name__ == '__main__':
         df_env = df_envs[df_envs["env_id"] == args.env]
         env_dict = df_env.to_dict('records')[0]
         # print(env_dict)
-    except:
+    except BaseException:
         print("The environment specified is missing! Please update gym_envs/widowx_env/envs_list.csv. Exiting...")
         exit(0)
 
@@ -51,9 +59,8 @@ if __name__ == '__main__':
     env_dict['nb_eval_timesteps'] = args.n_eval_steps
     env_dict['deterministic'] = args.deterministic_flag
 
+    # 1.2. Create hyperparams dict
 
-    ####### 1.2. Create hyperparams dict
-    
     # Load hyperparameters from config.yml
     config_path = list(Path(log_dir).rglob('config.yml'))[0]
 
@@ -72,12 +79,13 @@ if __name__ == '__main__':
     hyperparams_dict['nb_eval_ep_during_training'] = args_dict['eval_episodes']
     hyperparams_dict['eval_freq_during_training'] = args_dict['eval_freq']
     hyperparams_dict['vec_env'] = args_dict['vec_env']
-    hyperparams_dict['n_timesteps'] = args_dict['n_timesteps']  # overwrite n_timesteps from hyperparams.yml
+    # overwrite n_timesteps from hyperparams.yml
+    hyperparams_dict['n_timesteps'] = args_dict['n_timesteps']
     hyperparams_dict['num_threads'] = args_dict['num_threads']
-    
+
     # print(hyperparams_dict)
 
-    ####### 1.3. create metric dict
+    # 1.3. create metric dict
 
     res_file_list = []
 
@@ -107,7 +115,7 @@ if __name__ == '__main__':
         'mean_train_time(s)': df['Train walltime (s)'].mean(),
         'std_train_time(s)': df['Train walltime (s)'].std(),
         'min_train_time(s)': df['Train walltime (s)'].min(),
-        'simulated_time(s)': hyperparams_dict['n_timesteps']/240,
+        'simulated_time(s)': hyperparams_dict['n_timesteps'] / 240,
         'mean_return': df['Eval mean reward'].mean(),
         'std_return': df['Eval mean reward'].std(),
         'max_return': df['Eval mean reward'].max(),
@@ -156,7 +164,7 @@ if __name__ == '__main__':
     }
 
     df_metrics = pd.DataFrame(metrics_dict, index=[0])
-    df_metrics.to_csv(log_dir+"results_exp.csv", index=False)
+    df_metrics.to_csv(log_dir + "results_exp.csv", index=False)
 
     # concatenate all 3 dictionaries
     benchmark_dict = {**env_dict, **hyperparams_dict, **metrics_dict}
@@ -170,16 +178,17 @@ if __name__ == '__main__':
         backedup_df = pd.read_csv(bench_path)
         # If experiment hasn't been evaluated yet
         if args.exp_id in backedup_df['exp_id'].values:
-            answer = None 
-            while answer not in ("Y", "n"): 
-                answer = input("This experiment has already been evaluated and added to the benchmark file. Do you still want to continue ? [Y/n] ") 
+            answer = None
+            while answer not in ("Y", "n"):
+                answer = input(
+                    "This experiment has already been evaluated and added to the benchmark file. Do you still want to continue ? [Y/n] ")
                 if answer == "Y":
                     break
                 elif answer == "n":
                     print("Aborting...")
                     sys.exit()
-                else: 
-                    print("Please enter Y or n.") 
+                else:
+                    print("Please enter Y or n.")
 
         # add to existing results and save
         appended_df = backedup_df.append(df_bench, ignore_index=True)
@@ -196,7 +205,7 @@ if __name__ == '__main__':
 
     res_file_list = []
 
-    for path in Path(log_dir).rglob(args.env+'_*'):
+    for path in Path(log_dir).rglob(args.env + '_*'):
         res_file_list.append(path)
 
     res_file_list = sorted(res_file_list)
@@ -214,7 +223,7 @@ if __name__ == '__main__':
         # print(W['r'])
 
         df_list.append(W['r'])
-        col_list.append("seed "+str(count))
+        col_list.append("seed " + str(count))
         count += 1
 
     all_rewards = pd.concat(df_list, axis=1)
@@ -223,10 +232,12 @@ if __name__ == '__main__':
     all_rewards_copy = all_rewards.copy()
     all_rewards["mean_reward"] = all_rewards_copy.mean(axis=1)
     all_rewards["std_reward"] = all_rewards_copy.std(axis=1)
-    all_rewards["upper"] = all_rewards["mean_reward"] + all_rewards["std_reward"]
-    all_rewards["lower"] = all_rewards["mean_reward"] - all_rewards["std_reward"]
+    all_rewards["upper"] = all_rewards["mean_reward"] + \
+        all_rewards["std_reward"]
+    all_rewards["lower"] = all_rewards["mean_reward"] - \
+        all_rewards["std_reward"]
     all_rewards['timesteps'] = W['l'].cumsum()
-    all_rewards.to_csv(log_dir+"all_rewards.csv", index=False)
+    all_rewards.to_csv(log_dir + "all_rewards.csv", index=False)
 
     # plot
     plt.figure(1, figsize=(10, 5))
@@ -242,7 +253,7 @@ if __name__ == '__main__':
     plt.ylabel('Rewards')
 
     plt.legend()
-    plt.savefig(log_dir+"reward_vs_timesteps.png", dpi=100)
+    plt.savefig(log_dir + "reward_vs_timesteps.png", dpi=100)
     # plt.show()
 
     # apply rolling window (except on timesteps)
@@ -251,7 +262,7 @@ if __name__ == '__main__':
         all_rewards[col] = all_rewards[col].rolling(window=50).mean()
 
     all_rewards.dropna(inplace=True)  # remove NaN due to rolling average
-    all_rewards.to_csv(log_dir+"all_rewards_smooth.csv", index=False)
+    all_rewards.to_csv(log_dir + "all_rewards_smooth.csv", index=False)
     # print(all_rewards)
 
     # plot
@@ -268,5 +279,5 @@ if __name__ == '__main__':
     plt.ylabel('Rewards')
 
     plt.legend()
-    plt.savefig(log_dir+"reward_vs_timesteps_smoothed.png", dpi=100)
+    plt.savefig(log_dir + "reward_vs_timesteps_smoothed.png", dpi=100)
     # plt.show()

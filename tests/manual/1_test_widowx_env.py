@@ -36,9 +36,12 @@ for episode in range(2):
         print("timestep: ", t)
 
         rewards.append(reward)
-        time.sleep(1./30.)
+        time.sleep(1. / 30.)
 
     cumulative_reward = sum(rewards)
-    print("episode {} | cumulative reward : {}".format(episode, cumulative_reward))
+    print(
+        "episode {} | cumulative reward : {}".format(
+            episode,
+            cumulative_reward))
 
 env.close()

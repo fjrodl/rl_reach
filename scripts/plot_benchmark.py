@@ -10,8 +10,14 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--exp-list', help="List of experiment ID to plot (eg. 1 2 3)", nargs="+")
-    parser.add_argument('--col', help="Column name (hyperparameter name) of the benchmark file", type=str)
+    parser.add_argument(
+        '--exp-list',
+        help="List of experiment ID to plot (eg. 1 2 3)",
+        nargs="+")
+    parser.add_argument(
+        '--col',
+        help="Column name (hyperparameter name) of the benchmark file",
+        type=str)
     args = parser.parse_args()
 
     # Import data
@@ -19,8 +25,8 @@ if __name__ == "__main__":
     # print(df)
 
     # select experiments ID to plot and column
-    exp_list = args.exp_list  #[13, 36, 37]
-    col = args.col   #"n_timesteps"
+    exp_list = args.exp_list  # [13, 36, 37]
+    col = args.col  # "n_timesteps"
     df_plot = df[df['exp_id'].isin(exp_list)]
 
     # ent_coef is a string and must be converted into a float
@@ -31,12 +37,16 @@ if __name__ == "__main__":
     df_plot = df_plot.sort_values(col)
     print(df_plot)
 
-
     # Plot
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(10, 10), dpi=300)
 
     df_plot.plot(x=col, y='mean_return', yerr='std_return', capsize=4, ax=ax1)
-    df_plot.plot(x=col, y='mean_train_time(s)', yerr='std_train_time(s)', capsize=4, ax=ax2)
+    df_plot.plot(
+        x=col,
+        y='mean_train_time(s)',
+        yerr='std_train_time(s)',
+        capsize=4,
+        ax=ax2)
     df_plot.plot(x=col, y='mean_SR_50', yerr='std_SR_50', capsize=4, ax=ax3)
     df_plot.plot(x=col, y='mean_SR_20', yerr='std_SR_20', capsize=4, ax=ax3)
     df_plot.plot(x=col, y='mean_SR_10', yerr='std_SR_10', capsize=4, ax=ax3)
@@ -65,6 +75,4 @@ if __name__ == "__main__":
 
     plt.tight_layout()
     # plt.show()
-    plt.savefig("benchmark/plots/"+col+".png")
-
-
+    plt.savefig("benchmark/plots/" + col + ".png")

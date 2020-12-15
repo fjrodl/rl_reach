@@ -8,11 +8,11 @@ from gym import spaces
 
 # Initial joint angles
 RESET_VALUES = [
-    0.015339807878856412, 
+    0.015339807878856412,
     -1.2931458041875956,
-    1.0109710760673565, 
-    -1.3537670644267164, 
-    -0.07158577010132992, 
+    1.0109710760673565,
+    -1.3537670644267164,
+    -0.07158577010132992,
     .027]
 
 # End-effector boundaries
@@ -45,7 +45,6 @@ JOINT_MAX = np.array([
 
 class WidowxEnv(gym.Env):
 
-
     def __init__(self):
         """
         Initialise the environment
@@ -56,16 +55,18 @@ class WidowxEnv(gym.Env):
         # Define action space
         self.action_space = spaces.Box(
             low=np.float32(np.array([-0.5, -0.25, -0.25, -0.25, -0.5, -0.005]) / 30),
-            high=np.float32(np.array([0.5, 0.25, 0.25, 0.25, 0.5, 0.005]) / 30), 
+            high=np.float32(np.array([0.5, 0.25, 0.25, 0.25, 0.5, 0.005]) / 30),
             dtype=np.float32)
 
         # Define observation space
-        self.obs_space_low = np.float32(np.array([-.16, -.15, 0.14, -3.1, -1.6, -1.6, -1.8, -3.1, 0]))
-        self.obs_space_high = np.float32(np.array([.16, .15, .41, 3.1, 1.6, 1.6, 1.8, 3.1, 0.05]))
+        self.obs_space_low = np.float32(
+            np.array([-.16, -.15, 0.14, -3.1, -1.6, -1.6, -1.8, -3.1, 0]))
+        self.obs_space_high = np.float32(
+            np.array([.16, .15, .41, 3.1, 1.6, 1.6, 1.8, 3.1, 0.05]))
 
         self.observation_space = spaces.Box(
-            low=np.float32(self.obs_space_low), 
-            high=np.float32(self.obs_space_high), 
+            low=np.float32(self.obs_space_low),
+            high=np.float32(self.obs_space_high),
             dtype=np.float32)
 
         if self.goal_oriented:
@@ -76,47 +77,52 @@ class WidowxEnv(gym.Env):
             ))
 
         self.current_pos = None
-        
+
         # Initialise the goal position
         self.goal = np.array([.14, .0, 0.26])  # Fixed goal
         # self.set_goal(self.sample_goal_for_rollout())  # Random goal
-        
+
         # Connect to physics client. By default, do not render
         self.physics_client = p.connect(p.DIRECT)
 
         # Load URDFs
         self.create_world()
 
-
     def create_world(self):
 
         # Initialise camera angle
         p.resetDebugVisualizerCamera(
-            cameraDistance=0.6, 
-            cameraYaw=0, 
-            cameraPitch=-30, 
-            cameraTargetPosition=[0.2, 0, 0.1], 
+            cameraDistance=0.6,
+            cameraYaw=0,
+            cameraPitch=-30,
+            cameraTargetPosition=[0.2, 0, 0.1],
             physicsClientId=self.physics_client)
 
         # Load robot, sphere and plane urdf
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         path = os.path.abspath(os.path.dirname(__file__))
-        self.arm = p.loadURDF(os.path.join(path, "URDFs/widowx/widowx.urdf"), useFixedBase=True)
-        self.sphere = p.loadURDF(os.path.join(path, "URDFs/sphere.urdf"), useFixedBase=True)
+        self.arm = p.loadURDF(
+            os.path.join(
+                path,
+                "URDFs/widowx/widowx.urdf"),
+            useFixedBase=True)
+        self.sphere = p.loadURDF(
+            os.path.join(
+                path,
+                "URDFs/sphere.urdf"),
+            useFixedBase=True)
         self.plane = p.loadURDF('plane.urdf')
 
         # reset environment
         self.reset()
 
-        
     def sample_goal_for_rollout(self):
         """ Sample random goal coordinates """
-        return np.random.uniform(low=np.array([-.14, -.13, 0.26]), high=np.array([.14, .13, .39]))
-
+        return np.random.uniform(low=np.array(
+            [-.14, -.13, 0.26]), high=np.array([.14, .13, .39]))
 
     def set_goal(self, goal):
         self.goal = goal
-
 
     def step(self, action):
         """
@@ -141,7 +147,7 @@ class WidowxEnv(gym.Env):
         """
         self.action = np.array(action, dtype=np.float32)
         print("DURING STEP:", self.action)
-        # Retrive current joint position and velocities 
+        # Retrive current joint position and velocities
         # (note that velocities are always 0 due to the force joint reset)
         self.joint_positions, self.joint_velocities = self._get_current_joint_positions()
 
@@ -149,13 +155,18 @@ class WidowxEnv(gym.Env):
         self.new_joint_positions = self.joint_positions + self.action
 
         # Clip the joint position to fit the joint's allowed boundaries
-        self.new_joint_positions = np.clip(np.array(self.new_joint_positions), JOINT_MIN, JOINT_MAX)
+        self.new_joint_positions = np.clip(
+            np.array(
+                self.new_joint_positions),
+            JOINT_MIN,
+            JOINT_MAX)
 
         # Instantaneously reset the joint position (no torque applied)
         self._force_joint_positions(self.new_joint_positions)
 
-        # Retrieve the end effector position. 
-        # If it's outside the boundaries defined, don't update the joint position
+        # Retrieve the end effector position.
+        # If it's outside the boundaries defined, don't update the joint
+        # position
         end_effector_pos = self._get_current_end_effector_position()
         x, y, z = end_effector_pos[0], end_effector_pos[1], end_effector_pos[2]
         conditions = [
@@ -175,12 +186,12 @@ class WidowxEnv(gym.Env):
         if violated_boundary:
             self._force_joint_positions(self.joint_positions)
 
-        # Backup old position and get current joint position and current end effector position
-        self.old_pos = self.current_pos  
+        # Backup old position and get current joint position and current end
+        # effector position
+        self.old_pos = self.current_pos
         self.current_pos = self._get_current_state()
 
         return self._generate_step_tuple()
-
 
     def _generate_step_tuple(self):
         """ return (obs, reward, episode_over, info) tuple """
@@ -189,8 +200,8 @@ class WidowxEnv(gym.Env):
         reward = self._get_reward(self.goal)
 
         # Info
-        self.old_distance = np.linalg.norm(self.old_pos[:3] - self.goal) 
-        self.new_distance = np.linalg.norm(self.current_pos[:3] - self.goal) 
+        self.old_distance = np.linalg.norm(self.old_pos[:3] - self.goal)
+        self.new_distance = np.linalg.norm(self.current_pos[:3] - self.goal)
 
         info = {}
         info['new_distance'] = self.new_distance
@@ -212,16 +223,17 @@ class WidowxEnv(gym.Env):
 
         return self.current_pos, reward, episode_over, info
 
-
     def reset(self):
-        """ 
-        Reset robot and goal at the beginning of an episode 
+        """
+        Reset robot and goal at the beginning of an episode
         Return observation
         """
 
         # Reset robot at the origin and move sphere to the goal position
-        p.resetBasePositionAndOrientation(self.arm, [0, 0, 0], p.getQuaternionFromEuler([np.pi, np.pi, np.pi]))
-        p.resetBasePositionAndOrientation(self.sphere, self.goal, p.getQuaternionFromEuler([np.pi, np.pi, np.pi]))
+        p.resetBasePositionAndOrientation(
+            self.arm, [0, 0, 0], p.getQuaternionFromEuler([np.pi, np.pi, np.pi]))
+        p.resetBasePositionAndOrientation(
+            self.sphere, self.goal, p.getQuaternionFromEuler([np.pi, np.pi, np.pi]))
 
         # Reset joint at initial angles and get current state
         self._force_joint_positions(RESET_VALUES)
@@ -232,7 +244,6 @@ class WidowxEnv(gym.Env):
 
         return self.current_pos
 
-
     def _get_obs(self):
         """ return goal_oriented observation """
         obs = {}
@@ -241,16 +252,14 @@ class WidowxEnv(gym.Env):
         obs['achieved_goal'] = self.current_pos[:3]
         return obs
 
-
     def _get_reward(self, goal):
         """ Calculate the reward as - distance **2 """
         self.alpha = 1
         self.reward1 = - (np.linalg.norm(self.current_pos[:3] - goal) ** 2)
-        self.reward2 = - self.alpha 
+        self.reward2 = - self.alpha
 
         print("DURING GET REWARD:", self.action)
         return self.reward1 + self.reward2
-
 
     def render(self, mode='human'):
         """ Render Pybullet simulation """
@@ -258,11 +267,9 @@ class WidowxEnv(gym.Env):
         self.physics_client = p.connect(p.GUI)
         self.create_world()
 
-
     def compute_reward(self, achieved_goal, goal, info):
         """ Function necessary for goal Env"""
         return - (np.linalg.norm(achieved_goal - goal)**2)
-
 
     def _get_current_joint_positions(self):
         """ Return current joint position and velocities """
@@ -273,13 +280,18 @@ class WidowxEnv(gym.Env):
             joint_positions.append(p.getJointState(self.arm, i)[0])
             joint_velocities.append(p.getJointState(self.arm, i)[1])
 
-        return np.array(joint_positions, dtype=np.float32), np.array(joint_velocities, dtype=np.float32)
-
+        return np.array(
+            joint_positions, dtype=np.float32), np.array(
+            joint_velocities, dtype=np.float32)
 
     def _get_current_end_effector_position(self):
         """ Get end effector coordinates """
-        return np.array(list(p.getLinkState(self.arm, 5, computeForwardKinematics=1)[4]))
-
+        return np.array(
+            list(
+                p.getLinkState(
+                    self.arm,
+                    5,
+                    computeForwardKinematics=1)[4]))
 
     def _set_joint_positions(self, joint_positions):
         """ Position control (not reset) """
@@ -291,7 +303,6 @@ class WidowxEnv(gym.Env):
             controlMode=p.POSITION_CONTROL,
             targetPositions=joint_positions
         )
-
 
     def _force_joint_positions(self, joint_positions):
         """ Instantaneous reset of the joint angles (not position control) """
@@ -308,7 +319,6 @@ class WidowxEnv(gym.Env):
                 i,
                 joint_positions[-1]
             )
-
 
     def _get_current_state(self):
         """ Return observation: end effector position + current joint position """

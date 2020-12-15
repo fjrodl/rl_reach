@@ -3,7 +3,8 @@ import difflib
 import importlib
 import os
 import uuid
-import gym, widowx_env
+import gym
+import widowx_env
 import numpy as np
 import seaborn
 import torch as th
@@ -15,10 +16,31 @@ seaborn.set()
 
 if __name__ == "__main__":  # noqa: C901
     parser = argparse.ArgumentParser()
-    parser.add_argument("--algo", help="RL Algorithm", default="ppo", type=str, required=False, choices=list(ALGOS.keys()))
-    parser.add_argument("--env", type=str, default="CartPole-v1", help="environment ID")
-    parser.add_argument("-tb", "--tensorboard-log", help="Tensorboard log dir", default="", type=str)
-    parser.add_argument("-i", "--trained-agent", help="Path to a pretrained agent to continue training", default="", type=str)
+    parser.add_argument(
+        "--algo",
+        help="RL Algorithm",
+        default="ppo",
+        type=str,
+        required=False,
+        choices=list(
+            ALGOS.keys()))
+    parser.add_argument(
+        "--env",
+        type=str,
+        default="CartPole-v1",
+        help="environment ID")
+    parser.add_argument(
+        "-tb",
+        "--tensorboard-log",
+        help="Tensorboard log dir",
+        default="",
+        type=str)
+    parser.add_argument(
+        "-i",
+        "--trained-agent",
+        help="Path to a pretrained agent to continue training",
+        default="",
+        type=str)
     parser.add_argument(
         "--truncate-last-trajectory",
         help="When using HER with online sampling the last trajectory "
@@ -26,26 +48,82 @@ if __name__ == "__main__":  # noqa: C901
         default=True,
         type=bool,
     )
-    parser.add_argument("-n", "--n-timesteps", help="Overwrite the number of timesteps", default=-1, type=int)
-    parser.add_argument("--num-threads", help="Number of threads for PyTorch (-1 to use default)", default=-1, type=int)
-    parser.add_argument("--log-interval", help="Override log interval (default: -1, no change)", default=-1, type=int)
     parser.add_argument(
-        "--eval-freq", help="Evaluate the agent every n steps (if negative, no evaluation)", default=10000, type=int
-    )
-    parser.add_argument("--eval-episodes", help="Number of episodes to use for evaluation", default=5, type=int)
-    parser.add_argument("--save-freq", help="Save the model every n steps (if negative, no checkpoint)", default=-1, type=int)
+        "-n",
+        "--n-timesteps",
+        help="Overwrite the number of timesteps",
+        default=-1,
+        type=int)
     parser.add_argument(
-        "--save-replay-buffer", help="Save the replay buffer too (when applicable)", action="store_true", default=False
-    )
-    parser.add_argument("-f", "--log-folder", help="Log folder", type=str, default="logs")
-    parser.add_argument("--seed", help="Random generator seed", type=int, default=-1)
-    parser.add_argument("--n-seeds", help="Number of seeds used in the experiment", type=int, default=-1)
-    parser.add_argument("--vec-env", help="VecEnv type", type=str, default="dummy", choices=["dummy", "subproc"])
-    parser.add_argument("--n-trials", help="Number of trials for optimizing hyperparameters", type=int, default=10)
+        "--num-threads",
+        help="Number of threads for PyTorch (-1 to use default)",
+        default=-1,
+        type=int)
     parser.add_argument(
-        "-optimize", "--optimize-hyperparameters", action="store_true", default=False, help="Run hyperparameters search"
-    )
-    parser.add_argument("--n-jobs", help="Number of parallel jobs when optimizing hyperparameters", type=int, default=1)
+        "--log-interval",
+        help="Override log interval (default: -1, no change)",
+        default=-1,
+        type=int)
+    parser.add_argument(
+        "--eval-freq",
+        help="Evaluate the agent every n steps (if negative, no evaluation)",
+        default=10000,
+        type=int)
+    parser.add_argument(
+        "--eval-episodes",
+        help="Number of episodes to use for evaluation",
+        default=5,
+        type=int)
+    parser.add_argument(
+        "--save-freq",
+        help="Save the model every n steps (if negative, no checkpoint)",
+        default=-1,
+        type=int)
+    parser.add_argument(
+        "--save-replay-buffer",
+        help="Save the replay buffer too (when applicable)",
+        action="store_true",
+        default=False)
+    parser.add_argument(
+        "-f",
+        "--log-folder",
+        help="Log folder",
+        type=str,
+        default="logs")
+    parser.add_argument(
+        "--seed",
+        help="Random generator seed",
+        type=int,
+        default=-1)
+    parser.add_argument(
+        "--n-seeds",
+        help="Number of seeds used in the experiment",
+        type=int,
+        default=-1)
+    parser.add_argument(
+        "--vec-env",
+        help="VecEnv type",
+        type=str,
+        default="dummy",
+        choices=[
+            "dummy",
+            "subproc"])
+    parser.add_argument(
+        "--n-trials",
+        help="Number of trials for optimizing hyperparameters",
+        type=int,
+        default=10)
+    parser.add_argument(
+        "-optimize",
+        "--optimize-hyperparameters",
+        action="store_true",
+        default=False,
+        help="Run hyperparameters search")
+    parser.add_argument(
+        "--n-jobs",
+        help="Number of parallel jobs when optimizing hyperparameters",
+        type=int,
+        default=1)
     parser.add_argument(
         "--sampler",
         help="Sampler to use when optimizing hyperparameters",
@@ -60,13 +138,31 @@ if __name__ == "__main__":  # noqa: C901
         default="median",
         choices=["halving", "median", "none"],
     )
-    parser.add_argument("--n-startup-trials", help="Number of trials before using optuna sampler", type=int, default=10)
-    parser.add_argument("--n-evaluations", help="Number of evaluations for hyperparameter optimization", type=int, default=20)
     parser.add_argument(
-        "--storage", help="Database storage path if distributed optimization should be used", type=str, default=None
-    )
-    parser.add_argument("--study-name", help="Study name for distributed optimization", type=str, default=None)
-    parser.add_argument("--verbose", help="Verbose mode (0: no output, 1: INFO)", default=1, type=int)
+        "--n-startup-trials",
+        help="Number of trials before using optuna sampler",
+        type=int,
+        default=10)
+    parser.add_argument(
+        "--n-evaluations",
+        help="Number of evaluations for hyperparameter optimization",
+        type=int,
+        default=20)
+    parser.add_argument(
+        "--storage",
+        help="Database storage path if distributed optimization should be used",
+        type=str,
+        default=None)
+    parser.add_argument(
+        "--study-name",
+        help="Study name for distributed optimization",
+        type=str,
+        default=None)
+    parser.add_argument(
+        "--verbose",
+        help="Verbose mode (0: no output, 1: INFO)",
+        default=1,
+        type=int)
     parser.add_argument(
         "--gym-packages",
         type=str,
@@ -75,8 +171,11 @@ if __name__ == "__main__":  # noqa: C901
         help="Additional external Gym environment package modules to import (e.g. gym_minigrid)",
     )
     parser.add_argument(
-        "--env-kwargs", type=str, nargs="+", action=StoreDict, help="Optional keyword argument to pass to the env constructor"
-    )
+        "--env-kwargs",
+        type=str,
+        nargs="+",
+        action=StoreDict,
+        help="Optional keyword argument to pass to the env constructor")
     parser.add_argument(
         "-params",
         "--hyperparams",
@@ -85,23 +184,32 @@ if __name__ == "__main__":  # noqa: C901
         action=StoreDict,
         help="Overwrite hyperparameter (e.g. learning_rate:0.01 train_freq:10)",
     )
-    parser.add_argument("-uuid", "--uuid", action="store_true", default=False, help="Ensure that the run has a unique ID")
+    parser.add_argument(
+        "-uuid",
+        "--uuid",
+        action="store_true",
+        default=False,
+        help="Ensure that the run has a unique ID")
     args = parser.parse_args()
 
-    # Going through custom gym packages to let them register in the global registory
+    # Going through custom gym packages to let them register in the global
+    # registory
     for env_module in args.gym_packages:
         importlib.import_module(env_module)
 
     env_id = args.env
-    registered_envs = set(gym.envs.registry.env_specs.keys())  # pytype: disable=module-attr
+    # pytype: disable=module-attr
+    registered_envs = set(gym.envs.registry.env_specs.keys())
 
     # If the environment is not found, suggest the closest match
     if env_id not in registered_envs:
         try:
-            closest_match = difflib.get_close_matches(env_id, registered_envs, n=1)[0]
+            closest_match = difflib.get_close_matches(
+                env_id, registered_envs, n=1)[0]
         except IndexError:
             closest_match = "'no close match found...'"
-        raise ValueError(f"{env_id} not found in gym registry, you maybe meant {closest_match}?")
+        raise ValueError(
+            f"{env_id} not found in gym registry, you maybe meant {closest_match}?")
 
     # Unique id to ensure there is no race condition for the folder creation
     uuid_str = f"_{uuid.uuid4()}" if args.uuid else ""

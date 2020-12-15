@@ -7,10 +7,10 @@ import yaml
 
 log_folder = "../logs/opti/ppo/widowx_reacher-v1_1/"
 
-with open(log_folder+"default_hyperparams.yml", "r") as f:
+with open(log_folder + "default_hyperparams.yml", "r") as f:
     default_hyperparams = yaml.safe_load(f)
 
-with open(log_folder+"tuned_hyperparams.yml", "r") as f:
+with open(log_folder + "tuned_hyperparams.yml", "r") as f:
     d = yaml.safe_load(f)
 
 print(default_hyperparams)
@@ -25,9 +25,15 @@ d['net_arch'] = {
     "medium": "[dict(pi=[256, 256], vf=[256, 256])]",
 }[d['net_arch']]
 
-d['activation_fn'] = {"tanh": "nn.Tanh", "relu": "nn.ReLU", "elu": "nn.ELU", "leaky_relu": "nn.LeakyReLU"}[d['activation_fn']]
+d['activation_fn'] = {
+    "tanh": "nn.Tanh",
+    "relu": "nn.ReLU",
+    "elu": "nn.ELU",
+    "leaky_relu": "nn.LeakyReLU"}[
+        d['activation_fn']]
 
-d['policy_kwargs'] = "dict(log_std_init="+str(d['log_std_init'])+", net_arch="+d['net_arch']+", activation_fn="+d['activation_fn']+", ortho_init=False)"
+d['policy_kwargs'] = "dict(log_std_init=" + str(d['log_std_init']) + ", net_arch=" + \
+    d['net_arch'] + ", activation_fn=" + d['activation_fn'] + ", ortho_init=False)"
 
 print(d)
 
@@ -46,6 +52,5 @@ default_hyperparams['widowx_reacher-v1']['sde_sample_freq'] = d['sde_sample_freq
 default_hyperparams['widowx_reacher-v1']['vf_coef'] = d['vf_coef']
 default_hyperparams['widowx_reacher-v1']['policy_kwargs'] = d['policy_kwargs']
 
-with open(log_folder+"final_hyperparams.yml", 'w') as f:
+with open(log_folder + "final_hyperparams.yml", 'w') as f:
     yaml.dump(default_hyperparams, f)
-

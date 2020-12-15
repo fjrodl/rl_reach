@@ -46,7 +46,8 @@ def flatten_dict_observations(env: gym.Env) -> gym.Env:
         return gym.wrappers.FlattenDictWrapper(env, dict_keys=list(keys))
 
 
-def get_wrapper_class(hyperparams: Dict[str, Any]) -> Optional[Callable[[gym.Env], gym.Env]]:
+def get_wrapper_class(
+        hyperparams: Dict[str, Any]) -> Optional[Callable[[gym.Env], gym.Env]]:
     """
     Get one or more Gym environment wrapper class specified as a hyper parameter
     "env_wrapper".
@@ -98,8 +99,10 @@ def get_wrapper_class(hyperparams: Dict[str, Any]) -> Optional[Callable[[gym.Env
                 kwargs = wrapper_dict[wrapper_name]
             else:
                 kwargs = {}
-            wrapper_module = importlib.import_module(get_module_name(wrapper_name))
-            wrapper_class = getattr(wrapper_module, get_class_name(wrapper_name))
+            wrapper_module = importlib.import_module(
+                get_module_name(wrapper_name))
+            wrapper_class = getattr(
+                wrapper_module, get_class_name(wrapper_name))
             wrapper_classes.append(wrapper_class)
             wrapper_kwargs.append(kwargs)
 
@@ -167,8 +170,10 @@ def get_callback_list(hyperparams: Dict[str, Any]) -> List[BaseCallback]:
                 kwargs = callback_dict[callback_name]
             else:
                 kwargs = {}
-            callback_module = importlib.import_module(get_module_name(callback_name))
-            callback_class = getattr(callback_module, get_class_name(callback_name))
+            callback_module = importlib.import_module(
+                get_module_name(callback_name))
+            callback_class = getattr(
+                callback_module, get_class_name(callback_name))
             callbacks.append(callback_class(**kwargs))
 
     return callbacks
@@ -229,7 +234,8 @@ def create_test_env(
     if stats_path is not None:
         if hyperparams["normalize"]:
             # print("Loading running average") # commented by Pierre
-            # print(f"with params: {hyperparams['normalize_kwargs']}") # commented by Pierre
+            # print(f"with params: {hyperparams['normalize_kwargs']}") #
+            # commented by Pierre
             path_ = os.path.join(stats_path, "vecnormalize.pkl")
             if os.path.exists(path_):
                 env = VecNormalize.load(path_, env)
@@ -246,7 +252,8 @@ def create_test_env(
     return env
 
 
-def linear_schedule(initial_value: Union[float, str]) -> Callable[[float], float]:
+def linear_schedule(
+        initial_value: Union[float, str]) -> Callable[[float], float]:
     """
     Linear learning rate schedule.
 
@@ -296,12 +303,18 @@ def get_latest_run_id(log_path: str, env_id: str) -> int:
     for path in glob.glob(log_path + f"/{env_id}_[0-9]*"):
         file_name = path.split("/")[-1]
         ext = file_name.split("_")[-1]
-        if env_id == "_".join(file_name.split("_")[:-1]) and ext.isdigit() and int(ext) > max_run_id:
+        if env_id == "_".join(
+            file_name.split("_")[
+                :-1]) and ext.isdigit() and int(ext) > max_run_id:
             max_run_id = int(ext)
     return max_run_id
 
 
-def get_saved_hyperparams(stats_path: str, norm_reward: bool = False, test_mode: bool = False) -> Tuple[Dict[str, Any], str]:
+def get_saved_hyperparams(stats_path: str,
+                          norm_reward: bool = False,
+                          test_mode: bool = False) -> Tuple[Dict[str,
+                                                                 Any],
+                                                            str]:
     """
     :param stats_path:
     :param norm_reward:
@@ -316,7 +329,8 @@ def get_saved_hyperparams(stats_path: str, norm_reward: bool = False, test_mode:
         if os.path.isfile(config_file):
             # Load saved hyperparameters
             with open(os.path.join(stats_path, "config.yml"), "r") as f:
-                hyperparams = yaml.load(f, Loader=yaml.UnsafeLoader)  # pytype: disable=module-attr
+                # pytype: disable=module-attr
+                hyperparams = yaml.load(f, Loader=yaml.UnsafeLoader)
             hyperparams["normalize"] = hyperparams.get("normalize", False)
         else:
             obs_rms_path = os.path.join(stats_path, "obs_rms.pkl")
@@ -329,7 +343,9 @@ def get_saved_hyperparams(stats_path: str, norm_reward: bool = False, test_mode:
                 if test_mode:
                     normalize_kwargs["norm_reward"] = norm_reward
             else:
-                normalize_kwargs = {"norm_obs": hyperparams["normalize"], "norm_reward": norm_reward}
+                normalize_kwargs = {
+                    "norm_obs": hyperparams["normalize"],
+                    "norm_reward": norm_reward}
             hyperparams["normalize_kwargs"] = normalize_kwargs
     return hyperparams, stats_path
 
@@ -343,31 +359,41 @@ def calc_ep_success(success_threshold, episode_success_list, infos):
         episode_success_list.append(0)
     return episode_success_list
 
+
 def calc_success_list(episode_success_list, success_list):
     """ Append the last element of the episode success list when episode is done """
     success_list.append(episode_success_list[-1])
     return success_list
 
+
 def calc_reach_time(episode_success_list):
     """ If the episode is successful and it starts from an unsucessful step, calculate reach time """
     reachtime_list = []
-    if episode_success_list[-1] == True and episode_success_list[0] == False:
+    if episode_success_list[-1] and episode_success_list[0] == False:
         idx = 0
         while episode_success_list[idx] == False:
             idx += 1
         reachtime_list.append(idx)
     return reachtime_list
 
-def calc_mean_successratio_reachtime(success_threshold, success_list, reachtime_list):
-        """ Calculate mean of success ratio and reach time """
 
-        SR_mean = np.mean(success_list)
-        if SR_mean == 0:
-            RT_mean = None
-        else:
-            RT_mean = np.mean(reachtime_list)
-        print("success threshold: {} | success ratio: {:.2f} | Average reach time: {}".format(success_threshold, SR_mean, RT_mean))
-        return SR_mean, RT_mean
+def calc_mean_successratio_reachtime(
+        success_threshold,
+        success_list,
+        reachtime_list):
+    """ Calculate mean of success ratio and reach time """
+
+    SR_mean = np.mean(success_list)
+    if SR_mean == 0:
+        RT_mean = None
+    else:
+        RT_mean = np.mean(reachtime_list)
+    print(
+        "success threshold: {} | success ratio: {:.2f} | Average reach time: {}".format(
+            success_threshold,
+            SR_mean,
+            RT_mean))
+    return SR_mean, RT_mean
 
 
 class StoreDict(argparse.Action):
@@ -380,7 +406,13 @@ class StoreDict(argparse.Action):
 
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
         self._nargs = nargs
-        super(StoreDict, self).__init__(option_strings, dest, nargs=nargs, **kwargs)
+        super(
+            StoreDict,
+            self).__init__(
+            option_strings,
+            dest,
+            nargs=nargs,
+            **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
         arg_dict = {}

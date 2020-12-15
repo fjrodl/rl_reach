@@ -12,8 +12,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # read data
-    log_df = pd.read_csv(args.log_folder+"/res_episode_1.csv")
- 
+    log_df = pd.read_csv(args.log_folder + "/res_episode_1.csv")
+
     # plot
     fig, axs = plt.subplots(4, 4, figsize=(20, 10), dpi=300, sharex=True)
 
@@ -75,7 +75,8 @@ if __name__ == '__main__':
     ax_1 = axs[2, 2].twinx()
     log_df.plot(x='timestep', y='return', ax=ax_1, color="r")
 
-    log_df.plot(x='timestep', y='new_distance', ax=axs[2, 3], color="b", marker="x")
+    log_df.plot(x='timestep', y='new_distance',
+                ax=axs[2, 3], color="b", marker="x")
     ax_2 = axs[2, 3].twinx()
     log_df.plot(x='timestep', y='old_distance', ax=ax_2, color="m", marker="+")
 
@@ -129,5 +130,4 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     # plt.show()
-    plt.savefig(args.log_folder+"/plot_episode_eval_log.png")
-
+    plt.savefig(args.log_folder + "/plot_episode_eval_log.png")

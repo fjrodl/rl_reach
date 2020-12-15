@@ -58,7 +58,12 @@ class SaveVecNormalizeCallback(BaseCallback):
         only one file will be kept.
     """
 
-    def __init__(self, save_freq: int, save_path: str, name_prefix: Optional[str] = None, verbose: int = 0):
+    def __init__(
+            self,
+            save_freq: int,
+            save_path: str,
+            name_prefix: Optional[str] = None,
+            verbose: int = 0):
         super(SaveVecNormalizeCallback, self).__init__(verbose)
         self.save_freq = save_freq
         self.save_path = save_path
@@ -72,7 +77,9 @@ class SaveVecNormalizeCallback(BaseCallback):
     def _on_step(self) -> bool:
         if self.n_calls % self.save_freq == 0:
             if self.name_prefix is not None:
-                path = os.path.join(self.save_path, f"{self.name_prefix}_{self.num_timesteps}_steps.pkl")
+                path = os.path.join(
+                    self.save_path,
+                    f"{self.name_prefix}_{self.num_timesteps}_steps.pkl")
             else:
                 path = os.path.join(self.save_path, "vecnormalize.pkl")
             if self.model.get_vec_normalize_env() is not None:
@@ -106,8 +113,10 @@ class PlotNoiseRatioCallback(BaseCallback):
         obs = self.training_env._obs_from_buf()
         # Retrieve stochastic and deterministic action
         # we can extract the noise contribution from those two
-        noisy_action = self.model.predict(obs, deterministic=False)[0].flatten()
-        deterministic_action = self.model.predict(obs, deterministic=True)[0].flatten()
+        noisy_action = self.model.predict(
+            obs, deterministic=False)[0].flatten()
+        deterministic_action = self.model.predict(
+            obs, deterministic=True)[0].flatten()
         noise = noisy_action - deterministic_action
 
         self.deterministic_actions.append(deterministic_action)
@@ -120,12 +129,20 @@ class PlotNoiseRatioCallback(BaseCallback):
             self.deterministic_actions = np.array(self.deterministic_actions)
             self.noises = np.array(self.noises)
 
-            plt.figure("Deterministic action and noise during exploration", figsize=(6.4, 4.8))
+            plt.figure(
+                "Deterministic action and noise during exploration",
+                figsize=(
+                    6.4,
+                    4.8))
             # plt.title('Deterministic action and noise during exploration', fontsize=14)
             plt.xlabel("Timesteps", fontsize=14)
             plt.xticks(fontsize=13)
             plt.ylabel("Action", fontsize=14)
-            plt.plot(x, self.deterministic_actions, label="deterministic action", linewidth=2)
+            plt.plot(
+                x,
+                self.deterministic_actions,
+                label="deterministic action",
+                linewidth=2)
             plt.plot(x, self.noises, label="exploration noise", linewidth=2)
             plt.plot(x, self.noisy_actions, label="noisy action", linewidth=2)
             plt.legend(fontsize=13)

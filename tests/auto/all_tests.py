@@ -10,7 +10,12 @@ from stable_baselines3.common.env_checker import check_env
 
 ######## TEST ENVIRONMENTS ###########
 
-@pytest.mark.parametrize("env_id", ['widowx_reacher-v1', 'widowx_reacher-v2', 'widowx_reacher-v3', 'widowx_reacher-v4'])
+
+@pytest.mark.parametrize("env_id",
+                         ['widowx_reacher-v1',
+                          'widowx_reacher-v2',
+                          'widowx_reacher-v3',
+                          'widowx_reacher-v4'])
 def test_envs(env_id):
     env = gym.make(env_id)
     # check_env(env)
@@ -20,9 +25,9 @@ def test_envs(env_id):
     for t in range(100):
         action = env.action_space.sample()
         _, _, done, _ = env.step(action)
-    
+
     assert t == 99
-    assert done == True
+    assert done
 
     env.close()
 
@@ -43,7 +48,7 @@ if os.path.isdir(log_folder):
 
 
 def test_train():
-    
+
     args = [
         "-n", 100000,
         "--algo", "ppo",
@@ -59,7 +64,7 @@ def test_train():
 
 
 def test_enjoy():
-    
+
     args = [
         "-n", 300,
         "--algo", "ppo",
@@ -80,13 +85,13 @@ def test_enjoy():
 
 # Clean up: delete logs from previous test
 for i in range(1001, 1005):
-    log_folder = "logs/exp_"+str(i)
+    log_folder = "logs/exp_" + str(i)
     if os.path.isdir(log_folder):
         shutil.rmtree(log_folder)
 
 
 def test_exp1():
-    
+
     args = [
         "--exp-id", 1001,
         "--algo", "a2c",
@@ -103,7 +108,7 @@ def test_exp1():
 
 
 def test_exp2():
-    
+
     args = [
         "--exp-id", 1002,
         "--algo", "a2c",
@@ -120,7 +125,7 @@ def test_exp2():
 
 
 def test_exp3():
-    
+
     args = [
         "--exp-id", 1003,
         "--algo", "her",
@@ -137,7 +142,7 @@ def test_exp3():
 
 
 def test_exp4():
-    
+
     args = [
         "--exp-id", 1004,
         "--algo", "her",
@@ -157,7 +162,7 @@ def test_exp4():
 
 
 def test_eval1():
-    
+
     args = [
         '--exp-id', 1001,
         '--n-eval-steps', 100,
@@ -174,7 +179,7 @@ def test_eval1():
 
 
 def test_eval2():
-    
+
     args = [
         '--exp-id', 1002,
         '--n-eval-steps', 100,
@@ -191,7 +196,7 @@ def test_eval2():
 
 
 def test_eval3():
-    
+
     args = [
         '--exp-id', 1003,
         '--n-eval-steps', 100,
@@ -208,7 +213,7 @@ def test_eval3():
 
 
 def test_eval4():
-    
+
     args = [
         '--exp-id', 1004,
         '--n-eval-steps', 100,
@@ -233,7 +238,7 @@ if os.path.isdir(log_folder):
 
 
 def test_opti():
-    
+
     args = [
         "-optimize",
         "--algo", "ppo",

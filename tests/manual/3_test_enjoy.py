@@ -4,7 +4,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.ppo import MlpPolicy
 
 
-env = gym.make('widowx_reacher-v1') 
+env = gym.make('widowx_reacher-v1')
 # model = PPO(MlpPolicy, env, verbose=1)
 model = PPO.load("logs/widowx_reach-v1")
 

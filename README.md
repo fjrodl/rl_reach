@@ -13,7 +13,6 @@ The Gym environments and training scripts are adapted from [Replab](https://gith
 
 ## Installation
 
-
 1. Clone the repository
 
 ```bash
@@ -53,7 +52,6 @@ Automated tests
 ```bash
 pytest tests/auto/all_tests.py -v
 ```
-
 
 ## Train RL agents
 
@@ -116,7 +114,6 @@ python scripts/plot_benchmark.py --exp-list 26 27 28 29 --col n_timesteps
 
 Hyperparameters can be tuned with the script `train.py -optimize`.
 
-
 Usage:
 - `--algo`: RL algorithm (str: a2c, ddpg, her, ppo, sac, td3)
 - `--env`: Training environment ID (str: widowx_reacher-v1, widowx_reacher-v2, widowx_reacher-v3, widowx_reacher-v4)
@@ -139,23 +136,28 @@ Optimise all experiments:
 ./opti_all.sh
 ```
 
-### Docker images (work in progress)
+## Docker images
 
-Pull image
+Pull Docker image (CPU or GPU)
+
+```bash
+docker pull rlreach/rlreach-cpu
+docker pull rlreach/rlreach-gpu
+```
 
 or build image from Dockerfile
-
 
 ```bash
 docker build -t rlreach-cpu:latest . -f docker/Dockerfile_cpu
 docker build -t rlreach-gpu:latest . -f docker/Dockerfile_gpu
 ```
 
-Run commands inside the docker container
+Run commands inside the docker container with `run_docker_cpu.sh` and `run_docker_gpu.sh`.
 
+Example:
 ```bash
 ./docker/run_docker_cpu.sh python run_experiments.py --exp-id 99 --algo ppo --env widowx_reacher-v1 --n-timesteps 30000 --n-seeds 2
-./docker/run_docker_gpu.sh python run_experiments.py --exp-id 99 --algo ppo --env widowx_reacher-v1 --n-timesteps 30000 --n-seeds 2
+./docker/run_docker_cpu.sh python evaluate_policy.py --exp-id 99 --n-eval-steps 1000 --log-info 0 --plot-dim 0 --render 0
 ```
 
 Note, the GPU image requires [nvidia-docker](https://github.com/NVIDIA/nvidia-docker).
