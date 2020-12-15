@@ -35,8 +35,7 @@ def main():  # noqa: C901
         default="ppo",
         type=str,
         required=False,
-        choices=list(
-            ALGOS.keys()))
+        choices=list(ALGOS.keys()))
     parser.add_argument(
         "-n",
         "--n-eval-steps",
@@ -67,17 +66,13 @@ def main():  # noqa: C901
         '--render',
         help="1: Render environment, 0: don't render",
         type=int,
-        choices=[
-            0,
-            1],
+        choices=[0, 1],
         default=0)
     parser.add_argument(
         '--deterministic',
         help="1: Use deterministic actions, 0: Use stochastic actions",
         type=int,
-        choices=[
-            0,
-            1],
+        choices=[0, 1],
         default=0)
     parser.add_argument(
         "--load-best",
@@ -115,8 +110,7 @@ def main():  # noqa: C901
         type=str,
         nargs="+",
         default=[],
-        help="Additional external Gym environemnt package modules to import (e.g. gym_minigrid)",
-    )
+        help="Additional external Gym environemnt package modules to import (e.g. gym_minigrid)")
     parser.add_argument(
         "--env-kwargs",
         type=str,
@@ -127,19 +121,14 @@ def main():  # noqa: C901
         '--log-info',
         help="1: Log information at each evaluation steps and save, 0: don't log",
         type=int,
-        choices=[
-            0,
-            1],
+        choices=[0, 1],
         default=0)
     parser.add_argument(
         "--plot-dim",
         help="Plot end effector and goal position in real time (0: Don't plot, 2: 2D (default), 3: 3D)",
         type=int,
         default=0,
-        choices=[
-            0,
-            2,
-            3])
+        choices=[0, 2, 3])
     args = parser.parse_args()
 
     #################################
@@ -156,8 +145,8 @@ def main():  # noqa: C901
         fig = plt.figure()
         ax = fig.gca(projection='3d')
 
-    # Going through custom gym packages to let them register in the global
-    # registory
+    # Going through custom gym packages to let them register 
+    # in the global registry
     for env_module in args.gym_packages:
         importlib.import_module(env_module)
 
@@ -265,13 +254,13 @@ def main():  # noqa: C901
     success_threshold_2 = 0.002
     success_threshold_1 = 0.001
     success_threshold_05 = 0.0005
-    episode_success_list_50 = []
-    episode_success_list_20 = []
-    episode_success_list_10 = []
-    episode_success_list_5 = []
-    episode_success_list_2 = []
-    episode_success_list_1 = []
-    episode_success_list_05 = []
+    ep_success_list_50 = []
+    ep_success_list_20 = []
+    ep_success_list_10 = []
+    ep_success_list_5 = []
+    ep_success_list_2 = []
+    ep_success_list_1 = []
+    ep_success_list_05 = []
     success_list_50 = []
     success_list_20 = []
     success_list_10 = []
@@ -298,20 +287,20 @@ def main():  # noqa: C901
 
         if "widowx" in env_id:
             # Update episode success list
-            episode_success_list_50 = calc_ep_success(
-                success_threshold_50, episode_success_list_50, infos)
-            episode_success_list_20 = calc_ep_success(
-                success_threshold_20, episode_success_list_20, infos)
-            episode_success_list_10 = calc_ep_success(
-                success_threshold_10, episode_success_list_10, infos)
-            episode_success_list_5 = calc_ep_success(
-                success_threshold_5, episode_success_list_5, infos)
-            episode_success_list_2 = calc_ep_success(
-                success_threshold_2, episode_success_list_2, infos)
-            episode_success_list_1 = calc_ep_success(
-                success_threshold_1, episode_success_list_1, infos)
-            episode_success_list_05 = calc_ep_success(
-                success_threshold_05, episode_success_list_05, infos)
+            ep_success_list_50 = calc_ep_success(
+                success_threshold_50, ep_success_list_50, infos)
+            ep_success_list_20 = calc_ep_success(
+                success_threshold_20, ep_success_list_20, infos)
+            ep_success_list_10 = calc_ep_success(
+                success_threshold_10, ep_success_list_10, infos)
+            ep_success_list_5 = calc_ep_success(
+                success_threshold_5, ep_success_list_5, infos)
+            ep_success_list_2 = calc_ep_success(
+                success_threshold_2, ep_success_list_2, infos)
+            ep_success_list_1 = calc_ep_success(
+                success_threshold_1, ep_success_list_1, infos)
+            ep_success_list_05 = calc_ep_success(
+                success_threshold_05, ep_success_list_05, infos)
 
         episode_reward += reward[0]
         ep_len += 1
@@ -534,33 +523,29 @@ def main():  # noqa: C901
                     # append the last element of the episode success list when
                     # episode is done
                     success_list_50 = calc_success_list(
-                        episode_success_list_50, success_list_50)
+                        ep_success_list_50, success_list_50)
                     success_list_20 = calc_success_list(
-                        episode_success_list_20, success_list_20)
+                        ep_success_list_20, success_list_20)
                     success_list_10 = calc_success_list(
-                        episode_success_list_10, success_list_10)
+                        ep_success_list_10, success_list_10)
                     success_list_5 = calc_success_list(
-                        episode_success_list_5, success_list_5)
+                        ep_success_list_5, success_list_5)
                     success_list_2 = calc_success_list(
-                        episode_success_list_2, success_list_2)
+                        ep_success_list_2, success_list_2)
                     success_list_1 = calc_success_list(
-                        episode_success_list_1, success_list_1)
+                        ep_success_list_1, success_list_1)
                     success_list_05 = calc_success_list(
-                        episode_success_list_05, success_list_05)
+                        ep_success_list_05, success_list_05)
 
                     # If the episode is successful and it starts from an
                     # unsucessful step, calculate reach time
-                    reachtime_list_50 = calc_reach_time(
-                        episode_success_list_50)
-                    reachtime_list_20 = calc_reach_time(
-                        episode_success_list_20)
-                    reachtime_list_10 = calc_reach_time(
-                        episode_success_list_10)
-                    reachtime_list_5 = calc_reach_time(episode_success_list_5)
-                    reachtime_list_2 = calc_reach_time(episode_success_list_2)
-                    reachtime_list_1 = calc_reach_time(episode_success_list_1)
-                    reachtime_list_05 = calc_reach_time(
-                        episode_success_list_05)
+                    reachtime_list_50 = calc_reach_time(ep_success_list_50)
+                    reachtime_list_20 = calc_reach_time(ep_success_list_20)
+                    reachtime_list_10 = calc_reach_time(ep_success_list_10)
+                    reachtime_list_5 = calc_reach_time(ep_success_list_5)
+                    reachtime_list_2 = calc_reach_time(ep_success_list_2)
+                    reachtime_list_1 = calc_reach_time(ep_success_list_1)
+                    reachtime_list_05 = calc_reach_time(ep_success_list_05)
 
                 if args.log_info:
                     log_df = log_df[log_dict.keys()]  # sort columns
@@ -585,13 +570,13 @@ def main():  # noqa: C901
                 episode_reward = 0.0
                 ep_len = 0
                 state = None
-                episode_success_list_50 = []
-                episode_success_list_20 = []
-                episode_success_list_10 = []
-                episode_success_list_5 = []
-                episode_success_list_2 = []
-                episode_success_list_1 = []
-                episode_success_list_05 = []
+                ep_success_list_50 = []
+                ep_success_list_20 = []
+                ep_success_list_10 = []
+                ep_success_list_5 = []
+                ep_success_list_2 = []
+                ep_success_list_1 = []
+                ep_success_list_05 = []
 
             # Reset also when the goal is achieved when using HER
             if done and infos[0].get("is_success") is not None:

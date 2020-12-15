@@ -41,12 +41,7 @@ if __name__ == "__main__":
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(10, 10), dpi=300)
 
     df_plot.plot(x=col, y='mean_return', yerr='std_return', capsize=4, ax=ax1)
-    df_plot.plot(
-        x=col,
-        y='mean_train_time(s)',
-        yerr='std_train_time(s)',
-        capsize=4,
-        ax=ax2)
+    df_plot.plot(x=col, y='mean_train_time(s)', yerr='std_train_time(s)', capsize=4, ax=ax2)
     df_plot.plot(x=col, y='mean_SR_50', yerr='std_SR_50', capsize=4, ax=ax3)
     df_plot.plot(x=col, y='mean_SR_20', yerr='std_SR_20', capsize=4, ax=ax3)
     df_plot.plot(x=col, y='mean_SR_10', yerr='std_SR_10', capsize=4, ax=ax3)

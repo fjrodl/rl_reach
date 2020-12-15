@@ -156,8 +156,7 @@ class WidowxEnv(gym.Env):
 
         # Clip the joint position to fit the joint's allowed boundaries
         self.new_joint_positions = np.clip(
-            np.array(
-                self.new_joint_positions),
+            np.array(self.new_joint_positions),
             JOINT_MIN,
             JOINT_MAX)
 
