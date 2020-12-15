@@ -1,0 +1,9 @@
+env_id,nb_joints,action,obs,reward,random_goal,goal_env,ep_len,actionStepCoeff,bounds
+widowx_reacher-v1,6,"[D1, D2, D3, D4, D5, D6]","[Ex, Ey, Ez, A1, A2, A3, A4, A5, A6]",-D^2,0,0,100,30,large
+widowx_reacher-v2,6,"[D1, D2, D3, D4, D5, D6]","[Gx, Gy, Gz, A1, A2, A3, A4, A5, A6]",-D^2,0,0,100,30,large
+widowx_reacher-v3,6,"[D1, D2, D3, D4, D5, D6]","[torso-gripper, gripper-goal, A1, A2, A3, A4, A5, A6]",-D^2,0,0,100,30,large
+widowx_reacher-v4,6,"[D1, D2, D3, D4, D5, D6]","[gripper-goal, A1, A2, A3, A4, A5, A6]",-D^2,0,0,100,30,large
+widowx_reacher-v5,6,"[D1, D2, D3, D4, D5, D6]","[torso-gripper, gripper-goal, Gx, Gy, Gz, A1, A2, A3, A4, A5, A6]",-D^2,0,0,100,30,large
+widowx_reacher-v6,6,"[D1, D2, D3, D4, D5, D6]","[Ex, Ey, Ez, A1, A2, A3, A4, A5, A6]",-D^2,0,1,100,30,large
+widowx_reacher-v7,6,"[D1, D2, D3, D4, D5, D6]","[Ex, Ey, Ez, A1, A2, A3, A4, A5, A6]",-D^2,1,0,100,30,large
+widowx_reacher-v8,6,"[D1, D2, D3, D4, D5, D6]","[Ex, Ey, Ez, A1, A2, A3, A4, A5, A6]",-D^2,1,1,100,30,large
