@@ -66,7 +66,7 @@ Usage:
 
 Example:
 ```bash
-python run_experiments.py --exp-id 99 --algo ppo --env widowx_reacher-v1 --n-timesteps 100000 --n-seeds 5
+python run_experiments.py --exp-id 99 --algo ppo --env widowx_reacher-v1 --n-timesteps 10000 --n-seeds 3
 ```
 Run all experiments:
 ```bash
